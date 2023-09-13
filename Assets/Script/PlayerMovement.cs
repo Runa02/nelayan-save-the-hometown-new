@@ -13,6 +13,8 @@ public class CharacterController : MonoBehaviour
     [SerializeField]
     private Animator animator;
 
+    private bool isFacingRight = true;
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -27,14 +29,26 @@ public class CharacterController : MonoBehaviour
         rb.velocity = new Vector2(horizontalInput * movementSpeed, verticalInput * movementSpeed);
 
         animator.SetFloat("Speed", Mathf.Abs(horizontalInput));
-        if(verticalInput != 0){
+        if (verticalInput != 0)
+        {
             animator.SetFloat("Speed", Mathf.Abs(verticalInput));
         }
-        
-        if(Input.GetKeyDown(KeyCode.D)){
-            transform.eulerAngles = new Vector3 (0, -190, 0);
-        }if(Input.GetKeyDown(KeyCode.A)){
-            transform.eulerAngles = new Vector3 (0, 0, 0);
+
+        if (horizontalInput < 0 && !isFacingRight)
+        {
+            Flip();
         }
+        else if (horizontalInput > 0 && isFacingRight)
+        {
+            Flip();
+        }
+    }
+
+    void Flip()
+    {
+        isFacingRight = !isFacingRight;
+        Vector3 scale = transform.localScale;
+        scale.x *= -1;
+        transform.localScale = scale;
     }
 }
