@@ -6,6 +6,7 @@ public class PlacementBuilding : MonoBehaviour
 {
     [SerializeField]
     private GameObject Building;
+    // private LayerMask buildingLayer;
 
     [SerializeField]
     private GameObject currentBuilding;
@@ -20,18 +21,18 @@ public class PlacementBuilding : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0))
         {
-            if(isPlacing)
+            if (isPlacing)
             {
-                PlaceBuilding();
+                TryPlaceBuilding();
             }
             else
             {
                 StartPlacingBuilding();
             }
         }
-        else if(Input.GetMouseButtonDown(1))
+        else if (Input.GetMouseButtonDown(1))
         {
             CancelPlaceBuilding();
         }
@@ -58,22 +59,49 @@ public class PlacementBuilding : MonoBehaviour
         isPlacing = false;
     }
 
-    void PlaceBuilding()
+    private void TryPlaceBuilding()
     {
-        Collider2D collider = currentBuilding.GetComponent<Collider2D>();
-        if (collider != null)
+        if (CanPlaceBuilding())
         {
-            collider.enabled = false;
+            PlaceBuilding();
+        }
+    }
+
+    private bool CanPlaceBuilding()
+    {
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(currentBuilding.transform.position, 0f); // adjust the radius according to your building size
+
+        foreach (Collider2D collider in colliders)
+        {
+            if (collider.gameObject != currentBuilding)
+            {
+                // Another building is already placed here, can't place the new one
+                Debug.Log("Tidak Bisa!!! Karena ada object lain yang berada di tempat tersebut");
+                return false;
+            }
         }
 
-        currentBuilding = null;
+        return true;
+    }
+
+    private void PlaceBuilding()
+    {
+        // Perform necessary actions when placing the building
+        // For example, enable colliders, deduct resources, etc.
+
         isPlacing = false;
+        currentBuilding = null;
     }
 
     void UpdateBuildingPosition()
     {
         Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         mousePosition.z = 0; // Ensure the building stays in the 2D plane
+
+        mousePosition.x = Mathf.Round(mousePosition.x);
+        mousePosition.y = Mathf.Round(mousePosition.y); 
+
         currentBuilding.transform.position = mousePosition;
     }
+
 }
